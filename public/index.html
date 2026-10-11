@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#4a3568" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>一起听歌</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="native-app.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar card">
+      <h2 class="sidebar-title">用户</h2>
+      <label class="sidebar-label" for="displayNameInput">显示名称</label>
+      <input id="displayNameInput" type="text" maxlength="24" placeholder="例如：小寒" autocomplete="username" />
+      <div class="row sidebar-actions">
+        <button type="button" id="saveNameBtn">保存昵称</button>
+      </div>
+      <p id="displayNameHint" class="hint">昵称全站唯一；同一浏览器视为同一人。</p>
+      <p id="selfStatus" class="self-status"></p>
+    </aside>
+
+    <div class="content-row">
+      <div class="main-col">
+        <div class="wrap">
+          <header class="app-topbar">
+            <div class="app-topbar-inner">
+              <h1>一起听歌</h1>
+              <button type="button" id="mobileRoomChip" class="mobile-room-chip hidden" hidden aria-haspopup="dialog" title="房间菜单"></button>
+            </div>
+          </header>
+
+          <nav class="main-view-tabs" role="tablist" aria-label="主页面">
+            <button type="button" class="view-tab active" data-main-view="play" role="tab" aria-selected="true">播放</button>
+            <button type="button" class="view-tab" data-main-view="discover" role="tab" aria-selected="false">发现</button>
+            <button type="button" class="view-tab" data-main-view="comments" role="tab" aria-selected="false">评论</button>
+          </nav>
+
+          <div id="viewPanelPlay" class="main-view-panel active">
+          <section class="card room-bar compact-card">
+            <div class="room-bar-row">
+              <input id="roomInput" type="text" placeholder="房间 ID" autocomplete="off" />
+              <div class="room-bar-actions btn-bar btn-bar--inline">
+                <button type="button" id="joinBtn">进入</button>
+                <button type="button" id="newRoomBtn" class="secondary" title="随机新建房间">新建</button>
+              </div>
+            </div>
+            <p id="roomStatus" class="hint room-status-line"></p>
+          </section>
+
+          <section class="card player compact-card">
+            <div id="nowPlaying" class="now">未在播放</div>
+            <audio id="player" preload="auto" playsinline webkit-playsinline="true" x-webkit-airplay="allow"></audio>
+            <div class="transport">
+              <button type="button" id="prevBtn" class="transport-side" title="上一首" aria-label="上一首">⏮</button>
+              <button type="button" id="togglePlayBtn" class="toggle-play" title="播放" aria-label="播放或暂停" disabled>
+                <span class="toggle-play-inner" aria-hidden="true">
+                  <svg class="icon-svg icon-play-svg" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-svg icon-pause-svg" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </span>
+              </button>
+              <button type="button" id="nextBtn" class="transport-side" title="下一首" aria-label="下一首">⏭</button>
+              <button type="button" id="favoriteBtn" class="transport-side fav-btn" title="加入房间喜欢" aria-label="加入房间喜欢">♥</button>
+            </div>
+            <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" step="any" />
+            <div class="player-meta-row">
+              <span class="time"><span id="tCur">0:00</span> / <span id="tDur">0:00</span></span>
+              <div class="volume-inline">
+                <input type="range" id="volumeBar" class="slider vol-slider" min="0" max="100" value="100" step="1" />
+                <span id="volumePct" class="volume-pct">100%</span>
+              </div>
+              <div class="search-mode-tabs play-mode-tabs mini-tabs" role="tablist" aria-label="播放模式">
+                <button type="button" id="playModeLoop" class="tab active" role="tab" aria-selected="true">循环</button>
+                <button type="button" id="playModeRandom" class="tab" role="tab" aria-selected="false">随机</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="card queue-peek compact-card">
+            <div class="queue-peek-row">
+              <span id="queuePeekText" class="queue-peek-label">播放队列 · 未进房</span>
+              <button type="button" id="goQueueBtn" class="secondary btn-chip">管理队列</button>
+            </div>
+          </section>
+          </div>
+
+          <div id="viewPanelDiscover" class="main-view-panel" hidden>
+          <section class="card hub-card compact-card">
+            <nav class="main-hub-tabs" role="tablist" aria-label="主功能">
+              <button type="button" class="hub-tab active" data-hub="search" role="tab" aria-selected="true">搜索</button>
+              <button type="button" class="hub-tab" data-hub="playlists" role="tab" aria-selected="false">歌单</button>
+              <button type="button" class="hub-tab" data-hub="queue" role="tab" aria-selected="false">队列</button>
+            </nav>
+
+            <div id="hubPanelSearch" class="hub-panel active" role="tabpanel">
+              <div class="search-mode-tabs search-type-tabs mini-tabs" role="tablist" aria-label="搜索类型">
+                <button type="button" class="tab active" data-search-mode="song" role="tab" aria-selected="true">单曲</button>
+                <button type="button" class="tab" data-search-mode="playlist" role="tab" aria-selected="false">歌单</button>
+                <button type="button" class="tab" data-search-mode="lyric" role="tab" aria-selected="false">歌词</button>
+                <button type="button" class="tab" data-search-mode="artist" role="tab" aria-selected="false">歌手</button>
+              </div>
+              <div class="row search-row">
+                <input id="searchInput" type="search" placeholder="搜索单曲、歌手" />
+                <button type="button" id="searchBtn">搜索</button>
+              </div>
+              <p id="searchResultHint" class="hint search-result-hint"></p>
+              <ul id="searchResults" class="search-results hub-scroll"></ul>
+            </div>
+
+            <div id="hubPanelPlaylists" class="hub-panel" role="tabpanel" hidden>
+              <nav class="playlist-tabs mini-tabs" role="tablist" aria-label="歌单来源">
+                <button type="button" class="playlist-tab active" data-playlist-tab="xiaoyan" id="playlistTabXiaoyan">小彦</button>
+                <button type="button" class="playlist-tab" data-playlist-tab="mine" id="playlistTabMine">我的</button>
+                <button type="button" class="playlist-tab" data-playlist-tab="room" id="playlistTabRoom">房间喜欢</button>
+              </nav>
+
+              <section id="playlistPanelXiaoyan" class="playlist-panel active">
+                <div class="playlist-panel-head">
+                  <p id="xiaoyanPlaylistHint" class="hint">橙子味的小x</p>
+                  <button type="button" id="loadXiaoyanPlaylistsBtn" class="secondary">刷新</button>
+                </div>
+                <ul id="xiaoyanPlaylistList" class="playlist-list hub-scroll"></ul>
+              </section>
+              <section id="playlistPanelMine" class="playlist-panel" hidden>
+                <div class="playlist-panel-head">
+                  <p id="playlistHint" class="hint">登录网易云后加载</p>
+                  <button type="button" id="loadPlaylistsBtn" class="secondary">刷新</button>
+                </div>
+                <ul id="playlistList" class="playlist-list hub-scroll"></ul>
+              </section>
+              <section id="playlistPanelRoom" class="playlist-panel" hidden>
+                <p id="roomFavoritesHint" class="hint">房间内共享 · 显示喜欢该曲的用户</p>
+                <ul id="roomFavoritesList" class="playlist-list hub-scroll"></ul>
+              </section>
+
+              <div id="playlistDetail" class="playlist-detail hidden">
+                <div class="playlist-detail-head">
+                  <div class="playlist-detail-title">
+                    <strong id="playlistTitle"></strong>
+                    <span id="playlistCreator" class="playlist-creator"></span>
+                  </div>
+                  <div class="btn-bar btn-bar--playlist playlist-detail-actions">
+                    <div class="btn-bar-group">
+                      <button type="button" id="selectAllTracksBtn" class="secondary btn-chip">全选</button>
+                      <button type="button" id="clearTrackSelectionBtn" class="secondary btn-chip">取消</button>
+                    </div>
+                    <div class="btn-bar-group">
+                      <button type="button" id="playSelectedTracksBtn" class="secondary btn-chip" disabled>播放</button>
+                      <button type="button" id="addSelectedTracksBtn" class="btn-chip" disabled>入队</button>
+                      <button type="button" id="addAllPlaylistBtn" class="btn-chip">整单</button>
+                    </div>
+                    <button type="button" id="closePlaylistBtn" class="secondary btn-chip">收起</button>
+                  </div>
+                </div>
+                <p id="playlistSelectionHint" class="hint"></p>
+                <ul id="playlistTracks" class="search-results track-select-list hub-scroll"></ul>
+              </div>
+            </div>
+
+            <div id="hubPanelQueue" class="hub-panel" role="tabpanel" hidden>
+              <div class="btn-bar btn-bar--queue queue-toolbar" role="toolbar" aria-label="队列操作">
+                <div class="btn-bar-group">
+                  <button type="button" id="queueSelectAllBtn" class="secondary btn-chip">全选</button>
+                  <button type="button" id="queueClearSelectionBtn" class="secondary btn-chip">取消</button>
+                  <button type="button" id="queueRemoveSelectedBtn" class="secondary btn-chip" disabled>删选中</button>
+                </div>
+                <div class="btn-bar-group">
+                  <button type="button" id="queueDeleteAllBtn" class="secondary btn-chip">删全部</button>
+                  <button type="button" id="queueClearBtn" class="secondary btn-chip">清空</button>
+                </div>
+              </div>
+              <p id="queueSelectionHint" class="hint queue-hint"></p>
+              <div class="add-row queue-add-row">
+                <input id="urlInput" type="text" placeholder="链接或歌曲 ID" />
+                <input id="titleInput" type="text" placeholder="标题" />
+                <button type="button" id="addBtn" class="btn-chip">加入</button>
+              </div>
+              <ul id="queueList" class="queue hub-scroll"></ul>
+            </div>
+          </section>
+          </div>
+
+          <div id="viewPanelComments" class="main-view-panel" hidden>
+          <section class="card compact-card xiaoyan-comments-card">
+            <div class="xiaoyan-comments-head">
+              <p id="xiaoyanCommentsHint" class="hint">橙子味的小x 的网易云乐评</p>
+              <button type="button" id="loadXiaoyanCommentsBtn" class="secondary">刷新</button>
+            </div>
+            <ul id="xiaoyanCommentsList" class="xiaoyan-comments-list hub-scroll"></ul>
+          </section>
+          </div>
+
+          <footer class="compact-footer">
+            <span id="listeners">未连接房间</span>
+            · <a href="https://wannian.fun" rel="noopener">wannian.fun</a>
+          </footer>
+        </div>
+      </div>
+
+      <aside class="room-panel card">
+        <section class="netease-panel" aria-label="网易云登录">
+          <h2 class="netease-panel-title">网易云</h2>
+          <span id="neteaseStatus" class="netease-status-pill">检测中…</span>
+          <div class="netease-actions btn-bar btn-bar--stack">
+            <button type="button" id="neteaseQrBtn" class="secondary btn-chip">扫码登录</button>
+            <button type="button" id="neteaseLogoutBtn" class="secondary btn-chip hidden">退出登录</button>
+          </div>
+          <div id="qrBox" class="qr-box-side hidden">
+            <img id="qrImg" alt="网易云登录二维码" />
+            <p class="hint">网易云 App 扫一扫</p>
+          </div>
+        </section>
+
+        <nav class="room-panel-tabs mini-tabs" role="tablist" aria-label="房间信息">
+          <button type="button" class="room-panel-tab active" data-room-panel="audience" role="tab" aria-selected="true">听众</button>
+          <button type="button" class="room-panel-tab" data-room-panel="recent" role="tab" aria-selected="false">最近</button>
+          <button type="button" class="room-panel-tab" data-room-panel="top" role="tab" aria-selected="false">最高</button>
+          <button type="button" class="room-panel-tab" data-room-panel="together" role="tab" aria-selected="false">同听</button>
+        </nav>
+
+        <section id="roomPanelAudience" class="room-panel-section active">
+          <p id="roomAudienceHeader" class="audience-header">未进入房间</p>
+          <ul id="roomAudienceList" class="audience-list panel-scroll"></ul>
+        </section>
+        <section id="roomPanelRecent" class="room-panel-section" hidden>
+          <p id="roomRecentHeader" class="hint room-stat-header">最近播放 · 最多 10 首</p>
+          <ul id="roomRecentList" class="stat-track-list panel-scroll"></ul>
+        </section>
+        <section id="roomPanelTop" class="room-panel-section" hidden>
+          <p id="roomTopHeader" class="hint room-stat-header">播放最多 · Top 10</p>
+          <ul id="roomTopList" class="stat-track-list panel-scroll"></ul>
+        </section>
+        <section id="roomPanelTogether" class="room-panel-section" hidden>
+          <p id="togetherListenHint" class="hint together-hint">累计保存在服务器</p>
+          <ul id="togetherListenList" class="together-list panel-scroll"></ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div id="mobileMiniPlayer" class="mobile-mini-player hidden" hidden aria-hidden="true">
+    <button type="button" id="mobileMiniMain" class="mobile-mini-main">
+      <span id="mobileMiniTitle" class="mobile-mini-title">未在播放</span>
+      <span id="mobileMiniSub" class="mobile-mini-sub"></span>
+    </button>
+    <button type="button" id="mobileMiniToggle" class="mobile-mini-toggle" aria-label="播放或暂停">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+
+  <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="手机主导航">
+    <button type="button" class="mobile-nav-item active" data-mobile-page="play" aria-current="page">
+      <span class="mobile-nav-icon" aria-hidden="true">▶</span>
+      <span class="mobile-nav-label">播放</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-page="discover">
+      <span class="mobile-nav-icon" aria-hidden="true">◎</span>
+      <span class="mobile-nav-label">发现</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-page="comments">
+      <span class="mobile-nav-icon" aria-hidden="true">💬</span>
+      <span class="mobile-nav-label">评论</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-page="room">
+      <span class="mobile-nav-icon" aria-hidden="true">♫</span>
+      <span class="mobile-nav-label">房间</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-page="me">
+      <span class="mobile-nav-icon" aria-hidden="true">☺</span>
+      <span class="mobile-nav-label">我的</span>
+    </button>
+  </nav>
+
+  <div id="roomWelcomeModal" class="app-modal hidden" role="dialog" aria-modal="true" aria-labelledby="roomWelcomeTitle" aria-hidden="true">
+    <div class="app-modal-backdrop" data-room-welcome-close></div>
+    <div class="app-modal-panel app-modal-panel--room">
+      <h2 id="roomWelcomeTitle" class="app-modal-title">房间已就绪</h2>
+      <p class="app-modal-lead">分享房间号，邀请好友一起听</p>
+      <div class="room-welcome-id-box">
+        <code id="roomWelcomeId" class="room-welcome-id"></code>
+        <button type="button" id="roomWelcomeCopy" class="secondary btn-chip">复制</button>
+      </div>
+      <p id="roomWelcomeQueueHint" class="hint app-modal-hint">播放队列为空，可在「发现」搜索并加入歌曲。</p>
+      <div class="btn-bar btn-bar--modal app-modal-actions">
+        <button type="button" id="roomWelcomeSearch" class="btn-chip">去搜索</button>
+        <button type="button" id="roomWelcomeQueue" class="secondary btn-chip">管理队列</button>
+        <button type="button" id="roomWelcomeClose" class="secondary btn-chip">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="app-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-hidden="true">
+    <div class="app-modal-backdrop" data-confirm-close></div>
+    <div class="app-modal-panel">
+      <h2 id="confirmModalTitle" class="app-modal-title">确认</h2>
+      <p id="confirmModalMessage" class="app-modal-message"></p>
+      <div class="btn-bar btn-bar--modal app-modal-actions">
+        <button type="button" id="confirmModalCancel" class="secondary btn-chip">取消</button>
+        <button type="button" id="confirmModalOk" class="btn-chip btn-danger">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="listenerJoinModal" class="app-modal hidden" role="dialog" aria-modal="true" aria-labelledby="listenerJoinTitle" aria-hidden="true">
+    <div class="app-modal-backdrop" data-listener-join-close></div>
+    <div class="app-modal-panel app-modal-panel--join">
+      <h2 id="listenerJoinTitle" class="app-modal-title">有新朋友进房</h2>
+      <p id="listenerJoinText" class="app-modal-message"></p>
+      <p id="listenerJoinMeta" class="hint app-modal-hint"></p>
+      <p class="hint app-modal-hint listener-join-auto-hint">5 秒后自动关闭</p>
+    </div>
+  </div>
+
+  <div id="yanWelcomeModal" class="yan-welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="yanWelcomeTitle" aria-hidden="true">
+    <div class="yan-welcome-backdrop" data-yan-welcome-close></div>
+    <div class="yan-welcome-panel">
+      <h2 id="yanWelcomeTitle" class="yan-welcome-title">一起听</h2>
+      <p id="yanWelcomeText" class="yan-welcome-text"></p>
+      <button type="button" id="yanWelcomeClose" class="yan-welcome-btn">知道啦</button>
+    </div>
+  </div>
+  <div id="appToast" class="app-toast hidden" role="status" aria-live="polite" hidden></div>
+
+  <script src="native-app.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

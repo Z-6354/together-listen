@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Together Listen · 管理调试</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="admin-header">
+    <h1>Together Listen 管理调试</h1>
+    <p class="sub">操作日志、切歌记录与服务器资源（需 ADMIN_TOKEN）</p>
+  </header>
+
+  <section class="auth-bar card">
+    <label>
+      <span>管理员令牌</span>
+      <input type="password" id="adminToken" autocomplete="off" placeholder="与服务器 ADMIN_TOKEN 一致" />
+    </label>
+    <button type="button" id="connectBtn" class="btn primary">连接</button>
+    <button type="button" id="clearLogsBtn" class="btn secondary" disabled>清空视图</button>
+    <span id="authStatus" class="auth-status"></span>
+  </section>
+
+  <section id="statsPanel" class="stats-grid card" hidden>
+    <div class="stat">
+      <div class="stat-label">CPU 核心 / 负载</div>
+      <div id="statCpu" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">内存</div>
+      <div id="statMem" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Node 进程</div>
+      <div id="statProc" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">房间 / 听众</div>
+      <div id="statApp" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">网络速率</div>
+      <div id="statNet" class="stat-value">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">运行时长</div>
+      <div id="statUp" class="stat-value">—</div>
+    </div>
+  </section>
+
+  <section class="toolbar card" id="logToolbar" hidden>
+    <label>
+      <span>筛选动作</span>
+      <select id="filterAction">
+        <option value="">全部</option>
+        <option value="trackChange">切歌 trackChange</option>
+        <option value="volume">音量 volume / setVolume</option>
+        <option value="seek">进度 seek</option>
+        <option value="play">播放 play</option>
+        <option value="pause">暂停 pause</option>
+        <option value="next">下一首 next</option>
+        <option value="prev">上一首 prev</option>
+        <option value="join">进房 join</option>
+      </select>
+    </label>
+    <label class="chk">
+      <input type="checkbox" id="autoScroll" checked />
+      自动滚到底
+    </label>
+    <label class="chk">
+      <input type="checkbox" id="pausePoll" />
+      暂停刷新
+    </label>
+  </section>
+
+  <section class="card log-wrap" id="logWrap" hidden>
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>时间</th>
+          <th>来源</th>
+          <th>房间</th>
+          <th>用户</th>
+          <th>动作</th>
+          <th>详情</th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+    <p id="logEmpty" class="log-empty" hidden>暂无日志</p>
+  </section>
+
+  <script src="admin.js"></script>
+</body>
+</html>

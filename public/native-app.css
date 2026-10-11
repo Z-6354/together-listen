@@ -1,0 +1,16 @@
+/**
+ * 原生 Android 壳：安全区与顶栏留白（WebView 内仍用 mobile.css 主样式）
+ */
+html.native-app,
+body.native-app.is-mobile {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+body.native-app.is-mobile .app-topbar {
+  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+}
+
+/* 右上角原生菜单按钮留白，避免与房间芯片重叠 */
+body.native-app.is-mobile .app-topbar-inner {
+  padding-right: 2.85rem;
+}
